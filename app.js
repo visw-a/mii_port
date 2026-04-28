@@ -26,6 +26,8 @@ const elements = {
   sectorBreakdown: document.getElementById("sectorBreakdown"),
   riskMetrics: document.getElementById("riskMetrics"),
   updateFeed: document.getElementById("updateFeed"),
+  portfolioMeta: document.getElementById("portfolioMeta"),
+  portfolioTitle: document.getElementById("portfolioTitle"),
   lastUpdatedLabel: document.getElementById("lastUpdatedLabel"),
   refreshButton: document.getElementById("refreshButton"),
   statCardTemplate: document.getElementById("statCardTemplate"),
@@ -37,10 +39,10 @@ function numberClass(value) {
 
 function calculateMetrics(holdings) {
   const rows = holdings.map((holding) => {
-    const marketValue = holding.shares * holding.price;
-    const costValue = holding.shares * holding.costBasis;
+    const marketValue = holding.marketValue ?? holding.shares * holding.price;
+    const costValue = holding.costBasis ? holding.shares * holding.costBasis : marketValue;
     const pnl = marketValue - costValue;
-    const dayDollarMove = marketValue * holding.dayChangePct;
+    const dayDollarMove = marketValue * (holding.dayChangePct ?? 0);
 
     return {
       ...holding,
@@ -56,7 +58,7 @@ function calculateMetrics(holdings) {
   const totalPnl = totalMarketValue - totalCost;
   const totalDayMove = rows.reduce((sum, row) => sum + row.dayDollarMove, 0);
   const weightedBeta = rows.reduce(
-    (sum, row) => sum + (row.marketValue / totalMarketValue) * row.beta,
+    (sum, row) => sum + (row.marketValue / totalMarketValue) * (row.beta ?? 0),
     0,
   );
   const weightedDayPct = totalDayMove / totalMarketValue;
@@ -70,7 +72,7 @@ function calculateMetrics(holdings) {
       totalMarketValue,
       totalCost,
       totalPnl,
-      totalPnlPct: totalPnl / totalCost,
+      totalPnlPct: totalCost === 0 ? 0 : totalPnl / totalCost,
       totalDayMove,
       weightedDayPct,
       weightedBeta,
@@ -85,6 +87,31 @@ function groupedBySector(rows) {
     sectors.set(row.sector, current + row.marketValue);
   });
   return sectors;
+}
+
+function renderMeta(meta, totals, count) {
+  elements.portfolioTitle.textContent = `${meta.portfolioName} (${meta.snapshotDate} Baseline)`;
+
+  const metadata = [
+    ["Owner", meta.owner],
+    ["Inception", meta.inceptionDate],
+    ["Style", meta.investmentStyle],
+    ["Benchmark", meta.benchmark],
+    ["Currency", meta.currency],
+    ["Holdings", String(count)],
+    ["Snapshot MV", currency.format(totals.totalMarketValue)],
+  ];
+
+  elements.portfolioMeta.innerHTML = metadata
+    .map(
+      ([label, value]) => `
+      <div class="meta-item">
+        <span class="label">${label}</span>
+        <span class="value">${value}</span>
+      </div>
+      `,
+    )
+    .join("");
 }
 
 function renderStats(totals) {
@@ -112,12 +139,12 @@ function renderHoldings(rows) {
     .map(
       (row) => `
       <tr>
-        <td>${row.ticker}</td>
+        <td>${row.symbol}</td>
         <td>${row.name}</td>
         <td>${fixed2.format(row.shares)}</td>
         <td>${currency.format(row.price)}</td>
         <td>${currency.format(row.marketValue)}</td>
-        <td class="${numberClass(row.dayChangePct)}">${percent.format(row.dayChangePct)}</td>
+        <td class="${numberClass(row.dayChangePct ?? 0)}">${percent.format(row.dayChangePct ?? 0)}</td>
         <td>${percent.format(row.weight)}</td>
       </tr>
     `,
@@ -142,14 +169,15 @@ function renderSectorBreakdown(rows) {
 }
 
 function renderRiskMetrics(totals, rows) {
-  const topWinner = [...rows].sort((a, b) => b.dayChangePct - a.dayChangePct)[0];
-  const topLoser = [...rows].sort((a, b) => a.dayChangePct - b.dayChangePct)[0];
+  const tradableRows = rows.filter((row) => row.symbol !== "Cash_USD");
+  const topWinner = [...tradableRows].sort((a, b) => (b.dayChangePct ?? 0) - (a.dayChangePct ?? 0))[0];
+  const topLoser = [...tradableRows].sort((a, b) => (a.dayChangePct ?? 0) - (b.dayChangePct ?? 0))[0];
 
   const items = [
     ["Portfolio Beta", fixed2.format(totals.weightedBeta)],
     ["Daily Dollar Move", currency.format(totals.totalDayMove)],
-    ["Best Position", `${topWinner.ticker} (${percent.format(topWinner.dayChangePct)})`],
-    ["Worst Position", `${topLoser.ticker} (${percent.format(topLoser.dayChangePct)})`],
+    ["Best Position", `${topWinner.symbol} (${percent.format(topWinner.dayChangePct ?? 0)})`],
+    ["Worst Position", `${topLoser.symbol} (${percent.format(topLoser.dayChangePct ?? 0)})`],
   ];
 
   elements.riskMetrics.innerHTML = items
@@ -186,6 +214,7 @@ async function loadDashboard() {
   const payload = await response.json();
   const { rows, totals } = calculateMetrics(payload.holdings);
 
+  renderMeta(payload.meta, totals, rows.length);
   renderStats(totals);
   renderHoldings(rows);
   renderSectorBreakdown(rows);

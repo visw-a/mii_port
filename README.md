@@ -1,40 +1,48 @@
 # McIntire Investment Institute Portfolio Dashboard
 
-A lightweight, maintenance-friendly dashboard that displays portfolio positions, performance, sector allocation, and risk metrics from a single JSON data source.
+A lightweight, maintenance-friendly dashboard that now uses your **January 19, 2026 portfolio snapshot** as the baseline dataset.
 
-## Why this starter is easy to maintain
+## What changed
 
-- **Single data file** (`portfolio-data.json`) drives the dashboard.
-- **No build tooling required** (plain HTML/CSS/JS).
-- **Clear metric functions** in `app.js` for simple future extensions.
-- **Auto refresh** every 30 seconds with manual refresh support.
+- The seed data now matches your screenshot portfolio (16 holdings + cash, owner metadata, benchmark, and market values).
+- The dashboard renders profile metadata, holdings, sector mix, and risk/performance statistics from one JSON file.
+- The app is ready for a live API by swapping one config value.
 
-## Run locally
-
-Because browsers block local `fetch()` calls from `file://`, run a local server:
+## Run locally (right now)
 
 ```bash
 python3 -m http.server 8080
 ```
 
-Then open: <http://localhost:8080>
+Open <http://localhost:8080>.
 
-## Data model
+## What to do next to make this truly live
 
-Update `portfolio-data.json` with:
+1. Keep `portfolio-data.json` as your fallback snapshot.
+2. Build or expose an endpoint that returns this same JSON shape (positions + metadata + updates).
+3. In `app.js`, change:
 
-- `holdings[]` records containing `ticker`, `name`, `sector`, `shares`, `price`, `costBasis`, `dayChangePct`, and `beta`.
-- `updates[]` records to show operational updates in the feed.
+```js
+const CONFIG = {
+  dataUrl: "https://your-api.example.com/mii/portfolio/live",
+  refreshMs: 30_000,
+};
+```
 
-## Going from demo to true live data
+4. Add a server-side job that refreshes holdings/prices periodically (e.g., every 1–5 minutes).
 
-1. Replace `CONFIG.dataUrl` in `app.js` with your API endpoint.
-2. Feed real-time/near-real-time prices from your broker, data vendor, or OMS/PMS.
-3. Keep the same response shape to avoid frontend rewrites.
+## Prompts you can give me next
 
-## Suggested next features
+Use one of these exactly (or similar):
 
-- Authentication + role-based access (analyst vs. PM vs. executive view).
-- Alert rules (drawdown, sector concentration, beta caps).
-- Performance attribution and benchmark-relative tracking.
-- Export snapshots for investment committee materials.
+- "Connect this dashboard to a FastAPI backend that serves live holdings and price updates."
+- "Create a Node/Express API that reads a CSV export from our OMS and returns the dashboard JSON format."
+- "Add authentication (Google SSO) and role-based access for analyst vs PM."
+- "Add historical performance charts and benchmark-relative return metrics."
+- "Add alerting rules for max position weight, sector concentration, and beta limits."
+
+## Data model expected by frontend
+
+- `meta`: portfolio name, owner, dates, benchmark, currency.
+- `holdings[]`: `symbol`, `name`, `sector`, `shares`, `price`, optional `marketValue`, optional `costBasis`, optional `dayChangePct`, optional `beta`.
+- `updates[]`: date-stamped operational notes.

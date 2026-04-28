@@ -62,6 +62,34 @@ main {
   padding: 1rem 2rem 2rem;
 }
 
+.portfolio-meta {
+  margin-bottom: 1rem;
+}
+
+.meta-grid {
+  margin-top: 0.8rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.75rem;
+}
+
+.meta-item {
+  border: 1px solid var(--border);
+  border-radius: 0.65rem;
+  padding: 0.55rem 0.65rem;
+  background: #fafcff;
+}
+
+.meta-item .label {
+  color: var(--muted);
+  font-size: 0.82rem;
+  display: block;
+}
+
+.meta-item .value {
+  font-weight: 650;
+}
+
 .card-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
