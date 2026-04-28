@@ -1,48 +1,81 @@
-# McIntire Investment Institute Portfolio Dashboard
+# McIntire Investment Institute Portfolio Dashboard + FastAPI Backend
 
-A lightweight, maintenance-friendly dashboard that now uses your **January 19, 2026 portfolio snapshot** as the baseline dataset.
+This repo now runs as a **single local web app**:
+- FastAPI serves live portfolio JSON at `/api/portfolio/live`.
+- The same FastAPI process serves the frontend dashboard at `/`.
 
-## What changed
+Baseline holdings are from your screenshot values and now marked as **2026-01-01** in the payload.
 
-- The seed data now matches your screenshot portfolio (16 holdings + cash, owner metadata, benchmark, and market values).
-- The dashboard renders profile metadata, holdings, sector mix, and risk/performance statistics from one JSON file.
-- The app is ready for a live API by swapping one config value.
-
-## Run locally (right now)
+## 1) Open your terminal in this repo
 
 ```bash
-python3 -m http.server 8080
+cd /workspace/mii_port
 ```
 
-Open <http://localhost:8080>.
+Yes — these commands are run in your terminal.
 
-## What to do next to make this truly live
+## 2) Create and activate a Python virtual environment
 
-1. Keep `portfolio-data.json` as your fallback snapshot.
-2. Build or expose an endpoint that returns this same JSON shape (positions + metadata + updates).
-3. In `app.js`, change:
-
-```js
-const CONFIG = {
-  dataUrl: "https://your-api.example.com/mii/portfolio/live",
-  refreshMs: 30_000,
-};
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
 ```
 
-4. Add a server-side job that refreshes holdings/prices periodically (e.g., every 1–5 minutes).
+After activation, your prompt should show `(.venv)`.
 
-## Prompts you can give me next
+## 3) Install backend dependencies
 
-Use one of these exactly (or similar):
+```bash
+pip install -r requirements.txt
+```
 
-- "Connect this dashboard to a FastAPI backend that serves live holdings and price updates."
-- "Create a Node/Express API that reads a CSV export from our OMS and returns the dashboard JSON format."
-- "Add authentication (Google SSO) and role-based access for analyst vs PM."
-- "Add historical performance charts and benchmark-relative return metrics."
-- "Add alerting rules for max position weight, sector concentration, and beta limits."
+## 4) Start the FastAPI server
 
-## Data model expected by frontend
+```bash
+uvicorn backend.main:app --reload --host 127.0.0.1 --port 8000
+```
 
-- `meta`: portfolio name, owner, dates, benchmark, currency.
-- `holdings[]`: `symbol`, `name`, `sector`, `shares`, `price`, optional `marketValue`, optional `costBasis`, optional `dayChangePct`, optional `beta`.
-- `updates[]`: date-stamped operational notes.
+Keep this terminal running.
+
+## 5) Verify backend endpoints (open a second terminal)
+
+```bash
+cd /workspace/mii_port
+curl http://127.0.0.1:8000/api/health
+curl http://127.0.0.1:8000/api/portfolio/baseline | python3 -m json.tool | head -n 20
+curl http://127.0.0.1:8000/api/portfolio/live | python3 -m json.tool | head -n 30
+```
+
+Expected:
+- `/api/health` returns `{"status":"ok"}`
+- portfolio endpoints return JSON with `meta`, `holdings`, `updates`
+
+## 6) Open the dashboard in browser
+
+Go to:
+
+- <http://127.0.0.1:8000>
+
+The dashboard should auto-refresh every 30 seconds and can be manually refreshed with **Refresh now**.
+
+## 7) How to check it is truly live
+
+Run this twice, a minute apart:
+
+```bash
+curl http://127.0.0.1:8000/api/portfolio/live | python3 -m json.tool | rg '"asOfUtc"|"symbol"|"price"|"dayChangePct"' -n
+```
+
+You should see `asOfUtc` update and simulated prices/dayChangePct values move for non-cash positions.
+
+## API routes
+
+- `GET /api/health`
+- `GET /api/portfolio/baseline` (fixed baseline snapshot)
+- `GET /api/portfolio/live` (live-simulated prices)
+
+## Next prompt to give me
+
+If you want real market data (instead of simulation), prompt:
+
+> Replace simulated FastAPI prices with Polygon/IEX/Alpaca live quotes and persist intraday history for charts.

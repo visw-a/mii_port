@@ -1,5 +1,5 @@
 const CONFIG = {
-  dataUrl: "./portfolio-data.json",
+  dataUrl: "/api/portfolio/live",
   refreshMs: 30_000,
 };
 
