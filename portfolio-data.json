@@ -1,0 +1,78 @@
+{
+  "holdings": [
+    {
+      "ticker": "AAPL",
+      "name": "Apple Inc.",
+      "sector": "Technology",
+      "shares": 260,
+      "price": 194.18,
+      "costBasis": 171.42,
+      "dayChangePct": 0.011,
+      "beta": 1.24
+    },
+    {
+      "ticker": "MSFT",
+      "name": "Microsoft Corp.",
+      "sector": "Technology",
+      "shares": 185,
+      "price": 426.03,
+      "costBasis": 358.55,
+      "dayChangePct": -0.004,
+      "beta": 0.89
+    },
+    {
+      "ticker": "XOM",
+      "name": "Exxon Mobil Corp.",
+      "sector": "Energy",
+      "shares": 340,
+      "price": 116.33,
+      "costBasis": 103.8,
+      "dayChangePct": 0.008,
+      "beta": 0.93
+    },
+    {
+      "ticker": "JPM",
+      "name": "JPMorgan Chase & Co.",
+      "sector": "Financials",
+      "shares": 215,
+      "price": 201.56,
+      "costBasis": 176.44,
+      "dayChangePct": 0.006,
+      "beta": 1.1
+    },
+    {
+      "ticker": "UNH",
+      "name": "UnitedHealth Group Inc.",
+      "sector": "Health Care",
+      "shares": 74,
+      "price": 489.29,
+      "costBasis": 514.88,
+      "dayChangePct": -0.013,
+      "beta": 0.71
+    },
+    {
+      "ticker": "AMZN",
+      "name": "Amazon.com Inc.",
+      "sector": "Consumer Discretionary",
+      "shares": 160,
+      "price": 182.5,
+      "costBasis": 153.2,
+      "dayChangePct": 0.015,
+      "beta": 1.18
+    }
+  ],
+  "updates": [
+    {
+      "date": "2026-04-27",
+      "note": "Rebalanced Energy sleeve from 9.8% to 11.2%."
+    },
+    {
+      "date": "2026-04-24",
+      "note": "Added monitoring threshold alert for portfolio beta > 1.10."
+    },
+    {
+      "date": "2026-04-21",
+      "note": "Implemented nightly ingest for custodial position snapshots."
+    }
+  ]
+}
