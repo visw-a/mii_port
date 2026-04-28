@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>McIntire Investment Institute | Live Portfolio Dashboard</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="page-header">
+      <div>
+        <h1>McIntire Investment Institute</h1>
+        <p class="subheading" id="portfolioTitle">Portfolio Dashboard</p>
+      </div>
+      <div class="header-meta">
+        <p id="lastUpdatedLabel">Last update: --</p>
+        <button id="refreshButton" type="button">Refresh now</button>
+      </div>
+    </header>
+
+    <main>
+      <section class="card portfolio-meta">
+        <h2>Portfolio Profile</h2>
+        <div class="meta-grid" id="portfolioMeta"></div>
+      </section>
+
+      <section class="card-grid" id="headlineStats"></section>
+
+      <section class="layout-grid">
+        <article class="card">
+          <h2>Holdings</h2>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Security Name</th>
+                  <th>Shares</th>
+                  <th>Price</th>
+                  <th>Market Value</th>
+                  <th>Day %</th>
+                  <th>Weight</th>
+                </tr>
+              </thead>
+              <tbody id="holdingsTable"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <article class="card">
+          <h2>Portfolio Mix</h2>
+          <ul id="sectorBreakdown" class="breakdown-list"></ul>
+        </article>
+
+        <article class="card">
+          <h2>Risk &amp; Performance</h2>
+          <ul id="riskMetrics" class="metrics-list"></ul>
+        </article>
+
+        <article class="card">
+          <h2>Recent Updates</h2>
+          <ul id="updateFeed" class="feed-list"></ul>
+        </article>
+      </section>
+    </main>
+
+    <template id="statCardTemplate">
+      <article class="card stat-card">
+        <p class="stat-label"></p>
+        <p class="stat-value"></p>
+      </article>
+    </template>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
